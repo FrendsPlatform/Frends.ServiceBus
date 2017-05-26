@@ -1,11 +1,62 @@
-[TOC]
+- [Frends.ServiceBus](#frends.servicebus)
+   - [Installing](#installing)
+   - [Building](#building)
+   - [Contributing](#contributing)
+   - [Documentation](#documentation)
+     - [ServiceBus.Send](#servicebus.send)
+       - [Input](#input)
+       - [Options](#options)
+       - [Result](#result)
+     - [ServiceBus.Read](#servicebus.read)
+       - [Input](#input)
+       - [Options](#options)
+       - [Result](#result)
+   - [License](#license)
+   
+# Frends.ServiceBus
+FRENDS Service Bus tasks.
 
-# Task documentation #
+## Installing
+You can install the task via FRENDS UI Task view or you can find the nuget package from the following nuget feed
+`https://www.myget.org/F/frends/api/v2`
 
-## ServiceBus.Send ##
+## Building
+Ensure that you have `https://www.myget.org/F/frends/api/v2` added to your nuget feeds
+
+Clone a copy of the repo
+
+`git clone https://github.com/FrendsPlatform/Frends.ServiceBus.git`
+
+Restore dependencies
+
+`nuget restore frends.servicebus`
+
+Rebuild the project
+
+Run Tests with nunit3. Tests can be found under
+
+`Frends.ServiceBus.Tests\bin\Release\Frends.ServiceBus.Tests.dll`
+
+Create a nuget package
+
+`nuget pack nuspec/Frends.ServiceBus.nuspec`
+
+## Contributing
+When contributing to this repository, please first discuss the change you wish to make via issue, email, or any other method with the owners of this repository before making a change.
+
+1. Fork the repo on GitHub
+2. Clone the project to your own machine
+3. Commit changes to your own branch
+4. Push your work back up to your fork
+5. Submit a Pull request so that we can review your changes
+
+NOTE: Be sure to merge the latest from "upstream" before making a pull request!
+
+## Documentation
+### ServiceBus.Send
 Send a message to the service bus
 
-### Input ###
+#### Input
 
 | Property         | Type              | Description                                                 |
 | ---------------- | ----------------- | ----------------------------------------------------------- |
@@ -14,7 +65,7 @@ Send a message to the service bus
 | ConnectionString | string            | The connection string to access the service bus             |
 | Properties       | MessageProperty[] | Custom properties for the message                           |
 
-### Options ###
+#### Options
 
 | Property                           | Type                            | Description                                                                                                                                        |
 | ---------------------------------- | ------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -31,7 +82,7 @@ Send a message to the service bus
 | UseCachedConnection                | bool                            | Should the service bus connection (MessagingFactory) be cached. This speeds up the execution as creating a new connection is slow by keeping the connection open in the background, a single namespace is limited to 1000 concurrent connections |
 | TimeoutSeconds                     | int                             | Service bus operation timeout value in seconds                                                                                                     |
 
-### Result ###
+#### Result
 object
 
 | Property/Method     | Type             | Description                          |
@@ -41,10 +92,10 @@ object
 | ContentType         | string           | The content type of the sent message |
 
 
-## ServiceBus.Read ##
+### ServiceBus.Read
 Read a message from the service bus
 
-### Input ###
+#### Input 
 
 | Property         | Type                      | Description                                                         |
 | ---------------- | ------------------------- | ------------------------------------------------------------------- |
@@ -53,7 +104,7 @@ Read a message from the service bus
 | QueueOrTopicName | string                    | The name of the queue or topic which to send the message to         |
 | SubscriptionName | string                    | The name of the subscription if reading from a topic's subscription |
 
-### Options ###
+#### Options
 
 | Property                                  | Type                                     | Description                                                                                                                                        |
 | ----------------------------------------- | ---------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -64,7 +115,7 @@ Read a message from the service bus
 | EncodingName                              | string                                   | The name of the default encoding if Other is chosen                                                                                                |
 | CreateQueueOrSubscriptionIfItDoesNotExist | bool                                     | Should the queue or topic+subscription be created if they do not already exist. Slows the execution down a bit. Elements created by this are automatically deleted once they're idle for 7 days                                     |
 
-### Result ###
+#### Result
 object
 
 | Property/Method          | Type                      | Description                                          |
@@ -86,6 +137,6 @@ object
 | To                       | string                    | The to header value of the received message          |
 | ScheduledEnqueueTimeUtc | DateTime   | The time when the message was scheduled to be queued|
 
+## License
 
-
-
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details
