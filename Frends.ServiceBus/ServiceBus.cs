@@ -83,7 +83,7 @@ namespace Frends.ServiceBus
         }
 
         /// <summary>
-        /// Send data to the Service Bus, don't wait for a reply. See https://bitbucket.org/hiqfinland/frends.servicebus
+        /// Send data to the Service Bus, don't wait for a reply. See https://github.com/FrendsPlatform/Frends.ServiceBus
         /// </summary>
         /// <returns>Object: {MessageId, SessionId, ContentType}</returns>
         public static async Task<SendResult> Send([CustomDisplay(DisplayOption.Tab)]SendInput input, [CustomDisplay(DisplayOption.Tab)]SendOptions options, CancellationToken cancellationToken = new CancellationToken())
@@ -239,7 +239,7 @@ namespace Frends.ServiceBus
         }
 
         /// <summary>
-        /// Read a message from the Service Bus. See https://bitbucket.org/hiqfinland/frends.servicebus
+        /// Read a message from the Service Bus. See https://github.com/FrendsPlatform/Frends.ServiceBus
         /// </summary>
         /// <param name="input">Input parameters</param>
         /// <param name="options">Option parameters</param>
