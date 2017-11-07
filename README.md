@@ -1,16 +1,10 @@
-- [Frends.ServiceBus](#frends.servicebus)
+- [Frends.ServiceBus](#frendsservicebus)
    - [Installing](#installing)
    - [Building](#building)
    - [Contributing](#contributing)
    - [Documentation](#documentation)
-     - [ServiceBus.Send](#servicebus.send)
-       - [Input](#input)
-       - [Options](#options)
-       - [Result](#result)
-     - [ServiceBus.Read](#servicebus.read)
-       - [Input](#input)
-       - [Options](#options)
-       - [Result](#result)
+     - [ServiceBus.Send](#servicebussend) 
+     - [ServiceBus.Read](#servicebusread)
    - [License](#license)
    
 # Frends.ServiceBus
@@ -21,7 +15,6 @@ You can install the task via FRENDS UI Task view or you can find the nuget packa
 `https://www.myget.org/F/frends/api/v2`
 
 ## Building
-Ensure that you have `https://www.myget.org/F/frends/api/v2` added to your nuget feeds
 
 Clone a copy of the repo
 

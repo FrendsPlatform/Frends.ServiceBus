@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.25420.1
+# Visual Studio 15
+VisualStudioVersion = 15.0.27004.2006
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Frends.ServiceBus", "Frends.ServiceBus\Frends.ServiceBus.csproj", "{22EB5924-3103-461B-88BE-60AE79F86407}"
 EndProject
@@ -10,6 +10,11 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "nuspec", "nuspec", "{E105E543-7A4D-4379-A50A-2D9605CA94AC}"
 	ProjectSection(SolutionItems) = preProject
 		nuspec\Frends.ServiceBus.nuspec = nuspec\Frends.ServiceBus.nuspec
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{38572141-E12B-40E0-AAE2-92B41F07128E}"
+	ProjectSection(SolutionItems) = preProject
+		README.md = README.md
 	EndProjectSection
 EndProject
 Global
@@ -29,5 +34,8 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {A49539E0-4F8F-40B5-AD4C-CF5173126779}
 	EndGlobalSection
 EndGlobal
