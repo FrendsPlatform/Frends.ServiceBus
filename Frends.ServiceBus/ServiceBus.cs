@@ -1,11 +1,11 @@
 ﻿using System;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Net.Mime;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Frends.Tasks.Attributes;
 using Microsoft.ServiceBus;
 using Microsoft.ServiceBus.Messaging;
 
@@ -86,7 +86,7 @@ namespace Frends.ServiceBus
         /// Send data to the Service Bus, don't wait for a reply. See https://github.com/FrendsPlatform/Frends.ServiceBus
         /// </summary>
         /// <returns>Object: {MessageId, SessionId, ContentType}</returns>
-        public static async Task<SendResult> Send([CustomDisplay(DisplayOption.Tab)]SendInput input, [CustomDisplay(DisplayOption.Tab)]SendOptions options, CancellationToken cancellationToken = new CancellationToken())
+        public static async Task<SendResult> Send([PropertyTab]SendInput input, [PropertyTab]SendOptions options, CancellationToken cancellationToken = new CancellationToken())
         {
             cancellationToken.ThrowIfCancellationRequested();
 
@@ -245,7 +245,7 @@ namespace Frends.ServiceBus
         /// <param name="options">Option parameters</param>
         /// <param name="cancellationToken"></param>
         /// <returns>Object {ReceivedMessage(boolean), ContentType, SessionId, MessageId, CorrelationId, DeliveryCount, EnqueuedSequenceNumber, SequenceNumber, Label, Properties(dictionary), ReplyTo, ReplyToSessionId, Size, State, To, Content}</returns>
-        public static async Task<ReadResult> Read([CustomDisplay(DisplayOption.Tab)]ReadInput input, [CustomDisplay(DisplayOption.Tab)]ReadOptions options,
+        public static async Task<ReadResult> Read([PropertyTab]ReadInput input, [PropertyTab]ReadOptions options,
             CancellationToken cancellationToken = new CancellationToken())
         {
             cancellationToken.ThrowIfCancellationRequested();

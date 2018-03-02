@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.ServiceModel;
-using Frends.Tasks.Attributes;
+using System.ComponentModel.DataAnnotations;
 
 namespace Frends.ServiceBus
 {
@@ -20,7 +19,7 @@ namespace Frends.ServiceBus
         /// </summary>
         UTF32,
         /// <summary>
-        /// ASCII 
+        /// ASCII
         /// </summary>
         ASCII,
         /// <summary>
@@ -38,7 +37,6 @@ namespace Frends.ServiceBus
     /// </summary>
     public enum BodySerializationType
     {
-        
         /// <summary>
         /// As a stream
         /// </summary>
@@ -120,7 +118,7 @@ namespace Frends.ServiceBus
         public string MessageId { get; set; }
 
         /// <summary>
-        /// Message's session id, if set messages can be filtered according to the session id. Also the messages are handled on the same service bus broker ensuring delivery order. 
+        /// Message's session id, if set messages can be filtered according to the session id. Also the messages are handled on the same service bus broker ensuring delivery order.
         /// </summary>
         public string SessionId { get; set; }
 
@@ -129,13 +127,13 @@ namespace Frends.ServiceBus
         /// </summary>
         public string CorrelationId { get; set; }
         /// <summary>
-        /// The reply to field for the message, can be used to specify the name 
+        /// The reply to field for the message, can be used to specify the name
         /// of the queue where the receiver of the message should reply to
         /// </summary>
         public string ReplyTo { get; set; }
 
         /// <summary>
-        /// The reply to session id field for the message, can be used to specify the session id for a reply message  
+        /// The reply to session id field for the message, can be used to specify the session id for a reply message
         /// </summary>
         public string ReplyToSessionId { get; set; }
 
@@ -165,7 +163,7 @@ namespace Frends.ServiceBus
         /// <summary>
         /// Is the destination a queue or a topic, used when creating a non-existant destination
         /// </summary>
-        [ConditionalDisplay(nameof(CreateQueueOrTopicIfItDoesNotExist), true)]
+        [UIHint(nameof(CreateQueueOrTopicIfItDoesNotExist), "", true)]
         [DefaultValue(QueueOrTopic.Queue)]
         public QueueOrTopic DestinationType { get; set; }
 
@@ -176,7 +174,7 @@ namespace Frends.ServiceBus
         public bool UseCachedConnection { get; set; }
 
         /// <summary>
-        /// Timeout in seconds 
+        /// Timeout in seconds
         /// </summary>
         [DefaultValue(60)]
         public long TimeoutSeconds { get; set; }
@@ -248,7 +246,7 @@ namespace Frends.ServiceBus
         /// <summary>
         /// The name of the subscription
         /// </summary>
-        [ConditionalDisplay(nameof(SourceType), QueueOrSubscription.Subscription)]
+        [UIHint(nameof(SourceType), "", QueueOrSubscription.Subscription)]
         public string SubscriptionName { get; set; }
         /// <summary>
         /// ServiceBus connection string
@@ -289,7 +287,7 @@ namespace Frends.ServiceBus
         /// The name of the encoding for the message contents
         /// </summary>
         [DefaultValue("\"UTF-8\"")]
-        [ConditionalDisplay(nameof(DefaultEncoding), MessageEncoding.Other)]
+        [UIHint(nameof(DefaultEncoding), "", MessageEncoding.Other)]
         public string EncodingName { get; set; }
         /// <summary>
         /// Should the existence of the message source be checked and created if it does not exist. Elements created by this are automatically deleted once they're idle for 7 days

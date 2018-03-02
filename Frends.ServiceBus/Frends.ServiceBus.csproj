@@ -32,9 +32,6 @@
     <DocumentationFile>bin\Release\Frends.ServiceBus.XML</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Frends.Tasks.Attributes, Version=1.2.0.0, Culture=neutral, PublicKeyToken=258fd606323928fc, processorArchitecture=MSIL">
-      <HintPath>..\packages\Frends.Tasks.Attributes.1.2.1\lib\net40\Frends.Tasks.Attributes.dll</HintPath>
-    </Reference>
     <Reference Include="Microsoft.ServiceBus, Version=2.1.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\packages\ServiceBus.v1_1.1.0.6\lib\net40-full\Microsoft.ServiceBus.dll</HintPath>
       <Private>True</Private>
@@ -44,6 +41,7 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Runtime.Serialization" />
