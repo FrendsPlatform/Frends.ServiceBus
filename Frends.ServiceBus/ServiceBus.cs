@@ -95,10 +95,10 @@ namespace Frends.ServiceBus
                 switch (options.DestinationType)
                 {
                     case QueueOrTopic.Queue:
-                        await EnsureQueueExists(input.QueueOrTopicName, input.ConnectionString);
+                        await EnsureQueueExists(input.QueueOrTopicName, input.ConnectionString).ConfigureAwait(false);
                         break;
                     case QueueOrTopic.Topic:
-                        await EnsureTopicExists(input.QueueOrTopicName, input.ConnectionString);
+                        await EnsureTopicExists(input.QueueOrTopicName, input.ConnectionString).ConfigureAwait(false);
                         break;
                     default:
                         throw new Exception($"Unexpected destination type: {options.DestinationType}");
