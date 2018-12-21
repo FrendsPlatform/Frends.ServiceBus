@@ -2,6 +2,7 @@
 using Microsoft.ServiceBus.Messaging;
 using System;
 using System.Collections.Concurrent;
+using System.Diagnostics;
 using System.Linq;
 using System.Net;
 
@@ -22,7 +23,7 @@ namespace Frends.ServiceBus
         }
 
         private static readonly object factoryLock = new Object();
-        private static readonly ConcurrentDictionary<string, MessagingFactory> _messagingFactories = new ConcurrentDictionary<string, MessagingFactory>();
+        private readonly ConcurrentDictionary<string, MessagingFactory> _messagingFactories = new ConcurrentDictionary<string, MessagingFactory>();
 
         private ServiceBusMessagingFactory()
         {
@@ -139,18 +140,18 @@ namespace Frends.ServiceBus
                 {
                     // TODO: dispose managed state (managed objects).
                 }
+
                 foreach (var item in factoriesToClose)
                 {
                     try
                     {
-                        item.Value.Close();
+                        item.Value.Abort();
                     }
-                    catch (Exception) { }
-
+                    catch (Exception ex)
+                    {
+                        Trace.TraceError("Error when aborting messaging factory connection " + ex);
+                    }
                 }
-                
-                // TODO: free unmanaged resources (unmanaged objects) and override a finalizer below.
-                // TODO: set large fields to null.
 
                 _disposedValue = true;
             }
@@ -158,11 +159,11 @@ namespace Frends.ServiceBus
 
         // TODO: override a finalizer only if Dispose(bool disposing) above has code to free unmanaged resources.
         /// <summary>Allows an object to try to free resources and perform other cleanup operations before it is reclaimed by garbage collection.</summary>
-        ~ServiceBusMessagingFactory()
-        {
-            // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
-            Dispose(false);
-        }
+        //~ServiceBusMessagingFactory()
+        //{
+        //    // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
+        //    //Dispose(false);
+        //}
 
         /// <summary>
         /// Dispose of the MessagingFactory and close all the cached connections
@@ -171,8 +172,8 @@ namespace Frends.ServiceBus
         {
             // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
             Dispose(true);
-            // TODO: uncomment the following line if the finalizer is overridden above.
-             GC.SuppressFinalize(this);
+
+            //GC.SuppressFinalize(this);
         }
         #endregion
 
