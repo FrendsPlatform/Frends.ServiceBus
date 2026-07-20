@@ -150,7 +150,12 @@ namespace Frends.ServiceBus
                 }).ConfigureAwait(false);
         }
 
-        private static async Task EnsureQueueExists(string queueName, string connectionString)
+        private static Task EnsureQueueExists(string queueName, string connectionString)
+        {
+            return EnsureQueueExists(queueName, connectionString, false);
+        }
+
+        private static async Task EnsureQueueExists(string queueName, string connectionString, bool requiresSession)
         {
             var manager = NamespaceManager.CreateFromConnectionString(connectionString);
 
@@ -160,7 +165,8 @@ namespace Frends.ServiceBus
                 {
                     EnableBatchedOperations = true,
                     MaxSizeInMegabytes = 5 * 1024,
-                    AutoDeleteOnIdle = TimeSpan.FromDays(7)
+                    AutoDeleteOnIdle = TimeSpan.FromDays(7),
+                    RequiresSession = requiresSession
                 };
                 await manager.CreateQueueAsync(queueDescription).ConfigureAwait(false);
             }
@@ -201,25 +207,27 @@ namespace Frends.ServiceBus
 
         private static object CreateBody(SendInput input, SendOptions options)
         {
-            if (input.Data == null)
+            return CreateBody(input.Data, options.ContentType, options.BodySerializationType);
+        }
+
+        private static object CreateBody(string data, string contentType, BodySerializationType bodySerializationType)
+        {
+            if (data == null)
             {
                 return null;
             }
 
-            var contentTypeString = options.ContentType;
+            var encoding = GetEncodingFromContentType(contentType, Encoding.UTF8);
 
-            var encoding = GetEncodingFromContentType(contentTypeString, Encoding.UTF8);
-
-
-            switch (options.BodySerializationType)
+            switch (bodySerializationType)
             {
                 case BodySerializationType.String:
-                    return input.Data;
+                    return data;
                 case BodySerializationType.ByteArray:
-                    return encoding.GetBytes(input.Data);
+                    return encoding.GetBytes(data);
                 case BodySerializationType.Stream:
                 default:
-                    var stream = new MemoryStream(encoding.GetBytes(input.Data)) { Position = 0 };
+                    var stream = new MemoryStream(encoding.GetBytes(data)) { Position = 0 };
                     return stream;
             }
         }
@@ -309,18 +317,24 @@ namespace Frends.ServiceBus
                 }).ConfigureAwait(false);
         }
 
-        private static async Task<string> ReadMessageBody(BrokeredMessage msg, ReadOptions options)
+        private static Task<string> ReadMessageBody(BrokeredMessage msg, ReadOptions options)
+        {
+            return ReadMessageBody(msg, options.BodySerializationType, options.DefaultEncoding, options.EncodingName);
+        }
+
+        private static async Task<string> ReadMessageBody(
+            BrokeredMessage msg, BodySerializationType bodySerializationType, MessageEncoding defaultEncoding, string encodingName)
         {
             // Body is a string
-            if (options.BodySerializationType == BodySerializationType.String)
+            if (bodySerializationType == BodySerializationType.String)
             {
                 return msg.GetBody<string>();
             }
 
-            Encoding encoding = GetEncodingFromContentType(msg.ContentType, GetEncoding(options.DefaultEncoding, options.EncodingName));
+            Encoding encoding = GetEncodingFromContentType(msg.ContentType, GetEncoding(defaultEncoding, encodingName));
 
             // Body is a byte array
-            if (options.BodySerializationType == BodySerializationType.ByteArray)
+            if (bodySerializationType == BodySerializationType.ByteArray)
             {
                 var messageBytes = msg.GetBody<byte[]>();
                 return messageBytes == null ? null : encoding.GetString(messageBytes);
@@ -339,6 +353,109 @@ namespace Frends.ServiceBus
                 {
                     return await reader.ReadToEndAsync().ConfigureAwait(false);
                 }
+            }
+        }
+
+        /// <summary>
+        /// Send a message to a Service Bus queue and wait for a reply on a session-enabled response queue.
+        /// Implements the request-response pattern using Service Bus sessions.
+        /// See https://github.com/FrendsPlatform/Frends.ServiceBus
+        /// </summary>
+        /// <param name="input">Input parameters</param>
+        /// <param name="options">Option parameters</param>
+        /// <param name="cancellationToken"></param>
+        /// <returns>Object {ReceivedMessage(boolean), ContentType, SessionId, MessageId, CorrelationId, DeliveryCount, EnqueuedSequenceNumber, SequenceNumber, Label, Properties(dictionary), ReplyTo, ReplyToSessionId, Size, State, To, Content}</returns>
+        public static async Task<ReadResult> SendAndWaitForResponse(
+            [PropertyTab] SendAndWaitForResponseInput input,
+            [PropertyTab] SendAndWaitForResponseOptions options,
+            CancellationToken cancellationToken = new CancellationToken())
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+
+            var timeout = TimeSpan.FromSeconds(options.TimeoutSeconds);
+            var sessionId = string.IsNullOrWhiteSpace(input.SessionID) ? Guid.NewGuid().ToString() : input.SessionID;
+
+            if (options.CreateQueues)
+            {
+                await EnsureQueueExists(input.Queue, input.ConnectionString).ConfigureAwait(false);
+                await EnsureQueueExists(input.ReplyToQueue, input.ConnectionString, true).ConfigureAwait(false);
+            }
+
+            var requestFactory = ServiceBusMessagingFactory.CreateMessagingFactoryWithTimeout(input.ConnectionString, timeout);
+            var responseFactory = ServiceBusMessagingFactory.CreateMessagingFactoryWithTimeout(input.ConnectionString, timeout);
+            try
+            {
+                var requestSender = requestFactory.CreateMessageSender(input.Queue);
+                var responseQueueClient = responseFactory.CreateQueueClient(input.ReplyToQueue, ReceiveMode.ReceiveAndDelete);
+                try
+                {
+                    // Accept the session before sending to avoid a race condition where the reply
+                    // arrives before the session receiver is established.
+                    var session = await Task.Run(
+                        () => responseQueueClient.AcceptMessageSession(sessionId, timeout),
+                        cancellationToken).ConfigureAwait(false);
+                    try
+                    {
+                        // Build and send the request message.
+                        var body = CreateBody(input.Data, options.ContentType, options.BodySerializationType);
+                        var bodyStream = body as Stream;
+                        using (var message = bodyStream != null ? new BrokeredMessage(bodyStream, true) : new BrokeredMessage(body))
+                        {
+                            message.SessionId = sessionId;
+                            message.ReplyToSessionId = sessionId;
+                            message.ReplyTo = input.ReplyToQueue;
+                            message.MessageId = string.IsNullOrEmpty(options.MessageId) ? Guid.NewGuid().ToString() : options.MessageId;
+                            message.CorrelationId = options.CorrelationId;
+                            message.ContentType = options.ContentType;
+
+                            cancellationToken.ThrowIfCancellationRequested();
+                            await requestSender.SendAsync(message).ConfigureAwait(false);
+                        }
+
+                        // Wait for the response on the session.
+                        var msg = await session.ReceiveAsync(timeout).ConfigureAwait(false);
+
+                        if (msg == null)
+                        {
+                            throw new TimeoutException("Did not receive a response in the session within the specified timeout period.");
+                        }
+
+                        return new ReadResult
+                        {
+                            ReceivedMessage = true,
+                            ContentType = msg.ContentType,
+                            Properties = msg.Properties?.ToDictionary(kvp => kvp.Key, kvp => kvp.Value),
+                            SessionId = msg.SessionId,
+                            MessageId = msg.MessageId,
+                            CorrelationId = msg.CorrelationId,
+                            Label = msg.Label,
+                            DeliveryCount = msg.DeliveryCount,
+                            EnqueuedSequenceNumber = msg.EnqueuedSequenceNumber,
+                            SequenceNumber = msg.SequenceNumber,
+                            ReplyTo = msg.ReplyTo,
+                            ReplyToSessionId = msg.ReplyToSessionId,
+                            Size = msg.Size,
+                            State = msg.State.ToString(),
+                            To = msg.To,
+                            ScheduledEnqueueTimeUtc = msg.ScheduledEnqueueTimeUtc,
+                            Content = await ReadMessageBody(msg, options.BodySerializationType, options.DefaultEncoding, options.EncodingName).ConfigureAwait(false)
+                        };
+                    }
+                    finally
+                    {
+                        session.Close();
+                    }
+                }
+                finally
+                {
+                    requestSender.Close();
+                    responseQueueClient.Close();
+                }
+            }
+            finally
+            {
+                requestFactory.Close();
+                responseFactory.Close();
             }
         }
     }
