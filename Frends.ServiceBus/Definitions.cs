@@ -297,6 +297,93 @@ namespace Frends.ServiceBus
     }
 
     /// <summary>
+    /// Input parameters for the Frends.ServiceBus.SendAndWaitForResponse task
+    /// </summary>
+    public class SendAndWaitForResponseInput
+    {
+        /// <summary>
+        /// Data to send
+        /// </summary>
+        public string Data { get; set; }
+
+        /// <summary>
+        /// The name of the queue to send the request to
+        /// </summary>
+        public string Queue { get; set; }
+
+        /// <summary>
+        /// The name of the response queue. This queue must have RequiresSession set to true.
+        /// </summary>
+        public string ReplyToQueue { get; set; }
+
+        /// <summary>
+        /// Session ID used for the request (SessionId) and for filtering the response (ReplyToSessionId).
+        /// A new GUID is generated if left empty or null.
+        /// </summary>
+        public string SessionID { get; set; }
+
+        /// <summary>
+        /// ServiceBus connection string
+        /// </summary>
+        [DefaultValue("\"Endpoint=sb://[namespace].servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=[secret]\"")]
+        public string ConnectionString { get; set; }
+    }
+
+    /// <summary>
+    /// Options for the Frends.ServiceBus.SendAndWaitForResponse task
+    /// </summary>
+    public class SendAndWaitForResponseOptions
+    {
+        /// <summary>
+        /// How should the body of the message be serialized
+        /// </summary>
+        [DefaultValue(BodySerializationType.Stream)]
+        public BodySerializationType BodySerializationType { get; set; }
+
+        /// <summary>
+        /// Content type of the service bus message, e.g. text/plain; charset=UTF-8
+        /// </summary>
+        [DefaultValue("\"text/plain; charset=UTF-8\"")]
+        public string ContentType { get; set; }
+
+        /// <summary>
+        /// Should the queues be created if they do not already exist. Elements created by this are automatically deleted once they're idle for 7 days.
+        /// </summary>
+        [DefaultValue(true)]
+        public bool CreateQueues { get; set; }
+
+        /// <summary>
+        /// Timeout in seconds for sending the request and receiving the response
+        /// </summary>
+        [DefaultValue(60)]
+        public int TimeoutSeconds { get; set; }
+
+        /// <summary>
+        /// Message id, can be used to detect duplicate messages. A new GUID is generated if left empty or null.
+        /// </summary>
+        [DefaultValue("")]
+        public string MessageId { get; set; }
+
+        /// <summary>
+        /// The correlation id for the message, can be used when filtering messages for subscriptions
+        /// </summary>
+        public string CorrelationId { get; set; }
+
+        /// <summary>
+        /// What encoding the message contents is expected to be in
+        /// </summary>
+        [DefaultValue(MessageEncoding.UTF8)]
+        public MessageEncoding DefaultEncoding { get; set; }
+
+        /// <summary>
+        /// The name of the encoding for the message contents
+        /// </summary>
+        [DefaultValue("\"UTF-8\"")]
+        [UIHint(nameof(DefaultEncoding), "", MessageEncoding.Other)]
+        public string EncodingName { get; set; }
+    }
+
+    /// <summary>
     /// The result object for the Frends.ServiceBus.Read task
     /// </summary>
     public class ReadResult

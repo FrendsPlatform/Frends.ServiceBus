@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/10/nuspec.xsd">
   <metadata>
     <id>Frends.ServiceBus</id>
-    <version>0.7.20</version>
+    <version>0.8.0</version>
     <title>FRENDS Service bus tasks</title>
     <authors>HiQ Finland</authors>
     <owners />
