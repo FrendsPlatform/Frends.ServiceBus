@@ -1,3 +1,12 @@
+# ⚠️ OBSOLETE: Repository No Longer Supported
+
+This repository is **no longer actively maintained**. Functionality of Frends tasks from this repository can be found in **new location**.
+
+### 🚀 New Location
+Please find the latest version and continue development here:
+**[Frends.CrossplatformServiceBus](https://github.com/FrendsPlatform/Frends.CrossplatformServiceBus)**
+
+---
 - [Frends.ServiceBus](#frendsservicebus)
    - [Installing](#installing)
    - [Building](#building)
